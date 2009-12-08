@@ -6,12 +6,9 @@ module FriendlyId
         base.validate :validate_friendly_id
       end
 
-      attr :found_using_friendly_id
-
       # Was the record found using one of its friendly ids?
-      def found_using_friendly_id?
-        @found_using_friendly_id
-      end
+      attr_reader :found_using_friendly_id
+      alias found_using_friendly_id? found_using_friendly_id
 
       # Was the record found using its numeric id?
       def found_using_numeric_id?
@@ -38,10 +35,6 @@ module FriendlyId
             self.class.friendly_id_options[:reserved_message] % friendly_id)
           return false
         end
-      end
-
-      def found_using_friendly_id=(value) #:nodoc#
-        @found_using_friendly_id = value
       end
 
     end

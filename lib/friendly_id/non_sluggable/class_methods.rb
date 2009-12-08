@@ -8,11 +8,11 @@ module FriendlyId
 
       def find_one(id, options) #:nodoc:#
         if id.respond_to?(:to_str) && result = send("find_by_#{ friendly_id_options[:method] }", id.to_str, options)
-          result.send(:found_using_friendly_id=, true)
+          result.instance_variable_set(:@found_using_friendly_id, true)
+          result
         else
-          result = super id, options
+          super
         end
-        result
       end
 
       def find_some(ids_and_names, options) #:nodoc:#
@@ -25,10 +25,11 @@ module FriendlyId
 
         expected = expected_size(ids_and_names, options)
         if results.size != expected
-          raise ActiveRecord::RecordNotFound, "Couldn't find all #{ name.pluralize } with IDs (#{ ids_and_names * ', ' }) AND #{ sanitize_sql options[:conditions] } (found #{ results.size } results, but was looking for #{ expected })"
+          raise ActiveRecord::RecordNotFound,
+            "Couldn't find all #{ name.pluralize } with IDs (#{ ids_and_names * ', ' }) AND #{ sanitize_sql options[:conditions] } (found #{ results.size } results, but was looking for #{ expected })"
         end
 
-        results.each {|r| r.send(:found_using_friendly_id=, true) if names.include?(r.friendly_id)}
+        results.each {|r| r.instance_variable_set(:@found_using_friendly_id, true) if names.include?(r.friendly_id)}
 
         results
 
