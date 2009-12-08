@@ -1,9 +1,9 @@
 require "friendly_id/helpers"
 require "friendly_id/slug"
-require "friendly_id/sluggable_class_methods"
-require "friendly_id/sluggable_instance_methods"
-require "friendly_id/non_sluggable_class_methods"
-require "friendly_id/non_sluggable_instance_methods"
+require "friendly_id/sluggable/class_methods"
+require "friendly_id/sluggable/instance_methods"
+require "friendly_id/non_sluggable/class_methods"
+require "friendly_id/non_sluggable/instance_methods"
 
 # FriendlyId is a comprehensive Ruby library for slugging and permalinks with
 # ActiveRecord.
@@ -61,11 +61,11 @@ module FriendlyId
     class_inheritable_reader :slug_normalizer_block
     write_inheritable_attribute(:slug_normalizer_block, block) if block_given?
     if friendly_id_options[:use_slug]
-      extend SluggableClassMethods
-      include SluggableInstanceMethods
+      extend Sluggable::ClassMethods
+      include Sluggable::InstanceMethods
     else
-      extend NonSluggableClassMethods
-      include NonSluggableInstanceMethods
+      extend NonSluggable::ClassMethods
+      include NonSluggable::InstanceMethods
     end
   end
 end
