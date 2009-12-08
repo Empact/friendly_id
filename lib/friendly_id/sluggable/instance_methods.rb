@@ -32,7 +32,6 @@ module FriendlyId
 
       NUM_CHARS_RESERVED_FOR_FRIENDLY_ID_EXTENSION = 2
 
-      attr :finder_slug
       attr_accessor :finder_slug_name
 
       def finder_slug

@@ -15,7 +15,7 @@ module FriendlyId
         end
 
         find_options = {:select => "#{self.table_name}.*"}
-        find_options[:joins] = :slugs unless options[:include] && [*options[:include]].flatten.include?(:slugs)
+        find_options[:joins] = :slugs unless Array(options[:include]).include?(:slugs)
 
         name, sequence = Slug.parse(id_or_name)
 
@@ -25,29 +25,23 @@ module FriendlyId
           "#{Slug.table_name}.sequence" => sequence
         }
 
-        result = with_scope(:find => find_options) { find_initial(options) }
-        if result
+        if result = with_scope(:find => find_options) { find_initial(options) }
           result.finder_slug_name = id_or_name
+          result
         elsif id_or_name.to_i.to_s != id_or_name
           raise ActiveRecord::RecordNotFound
         else
-          result = super id_or_name, options
+          super id_or_name, options
         end
-
-        result
 
       rescue ActiveRecord::RecordNotFound => e
-
         if friendly_id_options[:scope]
-          if !scope
-            raise ActiveRecord::RecordNotFound.new("%s; expected scope but got none" % e.message)
-          else
-            raise ActiveRecord::RecordNotFound.new("%s and scope=#{scope}" % e.message)
-          end
+          raise ActiveRecord::RecordNotFound.new((scope \
+            ? "%s and scope=#{scope}" \
+            : "%s; expected scope but got none") % e.message)
+        else
+          raise
         end
-
-        raise e
-
       end
 
       # Finds multiple records using the friendly ids, or the records' ids.
@@ -57,7 +51,7 @@ module FriendlyId
         results = []
 
         find_options = {:select => "#{self.table_name}.*"}
-        find_options[:joins] = :slugs unless options[:include] && [*options[:include]].flatten.include?(:slugs)
+        find_options[:joins] = :slugs unless Array(options[:include]).include?(:slugs)
         find_options[:conditions] = "#{quoted_table_name}.#{primary_key} IN (#{ids.empty? ? 'NULL' : ids.join(',')}) "
         find_options[:conditions] << "OR slugs.id IN (#{slugs.to_s(:db)})"
 
@@ -65,7 +59,8 @@ module FriendlyId
 
         expected = expected_size(ids_and_names, options)
         if results.size != expected
-          raise ActiveRecord::RecordNotFound, "Couldn't find all #{ name.pluralize } with IDs (#{ ids_and_names * ', ' }) AND #{ sanitize_sql options[:conditions] } (found #{ results.size } results, but was looking for #{ expected })"
+          raise ActiveRecord::RecordNotFound,
+            "Couldn't find all #{ name.pluralize } with IDs (#{ ids_and_names * ', ' }) AND #{ sanitize_sql options[:conditions] } (found #{ results.size } results, but was looking for #{ expected })"
         end
 
         assign_finder_slugs(slugs, results)
@@ -74,8 +69,10 @@ module FriendlyId
       end
 
       def validate_find_options(options) #:nodoc:#
-        options.assert_valid_keys([:conditions, :include, :joins, :limit, :offset,
-          :order, :select, :readonly, :group, :from, :lock, :having, :scope])
+        options.assert_valid_keys([
+          :conditions, :include, :joins, :limit, :offset,
+          :order, :select, :readonly, :group, :from, :lock, :having, :scope
+        ])
       end
 
       private
