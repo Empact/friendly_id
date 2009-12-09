@@ -49,20 +49,16 @@ module FriendlyId
       # Finds multiple records using the friendly ids, or the records' ids.
       def find_some(ids_and_names, options) #:nodoc:#
         scope = options.delete(:scope)
-        slugs = []
-        ids = []
-        ids_and_names.each do |id_or_name|
-          name, sequence = Slug.parse id_or_name.to_s
-          slug = Slug.find(:first, :conditions => {
+        names, ids = split_names_and_ids(ids_and_names)
+        slugs = names.map do |name|
+          name, sequence = Slug.parse name.to_s
+          Slug.find(:first, :conditions => {
             :name           => name,
             :scope          => scope,
             :sequence       => sequence,
             :sluggable_type => base_class.name
           })
-          # If the slug was found, add it to the array for later use. If not, and
-          # the id_or_name is a number, assume that it is a regular record id.
-          slug ? slugs << slug : (ids << id_or_name if id_or_name.to_s =~ /\A\d*\z/)
-        end
+        end.compact
 
         find_options = {
           :select => "#{self.table_name}.*",

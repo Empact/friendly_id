@@ -19,7 +19,7 @@ module FriendlyId
 
       def find_some(ids_and_names, options) #:nodoc:#
 
-        names, ids = ids_and_names.partition {|id_or_name| id_or_name.respond_to?(:to_str) && id_or_name.to_str }
+        names, ids = split_names_and_ids(ids_and_names)
         results = with_scope :find => options do
           find :all, :conditions => ["#{quoted_table_name}.#{primary_key} IN (?) OR #{friendly_id_options[:method]} IN (?)",
             ids, names]
