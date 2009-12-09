@@ -48,42 +48,6 @@ module FriendlyId
 
       # Finds multiple records using the friendly ids, or the records' ids.
       def find_some(ids_and_names, options) #:nodoc:#
-        slugs, ids = get_slugs_and_ids(ids_and_names, options)
-
-        find_options = {
-          :select => "#{self.table_name}.*",
-          :conditions =>
-            "#{quoted_table_name}.#{primary_key} IN (#{ids.empty? ? 'NULL' : ids.join(',')}) " \
-            "OR slugs.id IN (#{slugs.to_s(:db)})"
-        }
-        find_options[:joins] = :slugs unless Array(options[:include]).include?(:slugs)
-
-        with_scope(:find => find_options) { find_every(options) }.uniq.tap do |results|
-          enforce_size!(results, ids_and_names, options)
-          assign_finder_slugs(slugs, results)
-        end
-      end
-
-      def validate_find_options(options) #:nodoc:#
-        options.assert_valid_keys([
-          :conditions, :include, :joins, :limit, :offset,
-          :order, :select, :readonly, :group, :from, :lock, :having, :scope
-        ])
-      end
-
-      private
-
-      # Assign finder slugs for the results found in find_some_with_friendly
-      def assign_finder_slugs(slugs, results) #:nodoc:#
-        slugs.each do |slug|
-          results.select { |r| r.id == slug.sluggable_id }.each do |result|
-            result.send(:finder_slug=, slug)
-          end
-        end
-      end
-
-      # Build arrays of slugs and ids, for the find_some_with_friendly method.
-      def get_slugs_and_ids(ids_and_names, options) #:nodoc:#
         scope = options.delete(:scope)
         slugs = []
         ids = []
@@ -99,7 +63,30 @@ module FriendlyId
           # the id_or_name is a number, assume that it is a regular record id.
           slug ? slugs << slug : (ids << id_or_name if id_or_name.to_s =~ /\A\d*\z/)
         end
-        return slugs, ids
+
+        find_options = {
+          :select => "#{self.table_name}.*",
+          :conditions =>
+            "#{quoted_table_name}.#{primary_key} IN (#{ids.empty? ? 'NULL' : ids.join(',')}) " \
+            "OR slugs.id IN (#{slugs.to_s(:db)})"
+        }
+        find_options[:joins] = :slugs unless Array(options[:include]).include?(:slugs)
+
+        with_scope(:find => find_options) { find_every(options) }.uniq.tap do |results|
+          enforce_size!(results, ids_and_names, options)
+          slugs.each do |slug|
+            results.select { |r| r.id == slug.sluggable_id }.each do |result|
+              result.send(:finder_slug=, slug)
+            end
+          end
+        end
+      end
+
+      def validate_find_options(options) #:nodoc:#
+        options.assert_valid_keys([
+          :conditions, :include, :joins, :limit, :offset,
+          :order, :select, :readonly, :group, :from, :lock, :having, :scope
+        ])
       end
 
     end
