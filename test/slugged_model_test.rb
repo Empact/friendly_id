@@ -60,27 +60,19 @@ class SluggedModelTest < Test::Unit::TestCase
     end
 
     should "raise an error if the friendly_id text is reserved" do
-      assert_raises(FriendlyId::SlugGenerationError) do
-        Post.create!(:name => "new")
-      end
+      assert !Post.new(:name => 'new').valid?
     end
 
     should "raise an error if the friendly_id text is an empty string" do
-      assert_raises(FriendlyId::SlugGenerationError) do
-        Post.create(:name => "")
-      end
+      assert !Post.new(:name => '').valid?
     end
 
-    should "raise an error if the friendly_id text is nil" do
-      assert_raises(FriendlyId::SlugGenerationError) do
-        Post.create(:name => nil)
-      end
+    should "fails validation if the friendly_id text is nil" do
+      assert !Post.new(:name => nil).valid?
     end
 
     should "raise an error if the normalized friendly id becomes blank" do
-      assert_raises(FriendlyId::SlugGenerationError) do
-        post = Post.create!(:name => "-.-")
-      end
+      assert !Post.new(:name => "-.-").valid?
     end
 
     should "not make a new slug unless the friendly_id method value has changed" do
@@ -171,15 +163,11 @@ class SluggedModelTest < Test::Unit::TestCase
       end
 
       should "raise an error if the friendly_id text is an empty string" do
-        assert_raises(FriendlyId::SlugGenerationError) do
-          Post.create(:name => "")
-        end
+        assert !Post.new(:name => '').valid?
       end
 
-      should "raise an error if the friendly_id text is nil" do
-        assert_raises(FriendlyId::SlugGenerationError) do
-          Post.create(:name => nil)
-        end
+      should "fails validation if the friendly_id text is nil" do
+        assert !Post.new(:name => nil).valid?
       end
 
     end

@@ -2,7 +2,8 @@
 class Slug < ActiveRecord::Base
 
   belongs_to :sluggable, :polymorphic => true
-  before_save :check_for_blank_name
+  validates_presence_of :name
+  validate :validate_name_is_not_reserved
   after_validation_on_create :initialize_sequence
 
   default_scope :order => 'sequence'
@@ -75,10 +76,9 @@ class Slug < ActiveRecord::Base
 
   protected
 
-  # Raise a FriendlyId::SlugGenerationError if the slug name is blank.
-  def check_for_blank_name #:nodoc:#
-    if name.blank?
-      raise FriendlyId::SlugGenerationError.new("The slug text is blank.")
+  def validate_name_is_not_reserved
+    if sluggable && sluggable.class.friendly_id_options[:reserved].include?(name)
+      errors.add("The slug text is a reserved value")
     end
   end
 

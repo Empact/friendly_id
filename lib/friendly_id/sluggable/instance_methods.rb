@@ -5,9 +5,10 @@ module FriendlyId
       def self.included(base)
         base.class_eval do
           has_many :slugs, :order => 'id DESC', :as => :sluggable, :dependent => :destroy
+          validate :validate_latest_slug
+
           before_validation :create_slug
           before_save :set_slug_cache
-
           # only protect the column if the class is not already using attributes_accessible
           if !accessible_attributes
             if friendly_id_options[:cache_column]
@@ -92,16 +93,16 @@ module FriendlyId
       def slug_text
         self.slug_normalizer_block.call(
           send(friendly_id_options[:method])
-        ).mb_chars.to(friendly_id_options[:max_length] - 1).tap do |text|
-
-          if friendly_id_options[:reserved].include?(text)
-            raise FriendlyId::SlugGenerationError.new("The slug text is a reserved value")
-          end
-
-        end
+        ).mb_chars.to(friendly_id_options[:max_length] - 1)
       end
 
     private
+
+      def validate_latest_slug
+        unless slugs.first.valid?
+          errors.add(friendly_id_options[:method], friendly_id_options[:reserved_message] % send(friendly_id_options[:method]))
+        end
+      end
 
       def cache_column
         self.class.cache_column
@@ -125,7 +126,7 @@ module FriendlyId
       def create_slug
         if new_slug_needed?
           @most_recent_slug = nil
-          slug_attributes = {:name => slug_text}
+          slug_attributes = {:name => slug_text, :sluggable => self}
           slug_attributes[:scope] =
             if friendly_id_options[:scope]
               scope = send(friendly_id_options[:scope])
