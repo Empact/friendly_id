@@ -98,12 +98,8 @@ module FriendlyId
         if self.slug_normalizer_block
           base = self.slug_normalizer_block.call(base)
         else
-          if self.friendly_id_options[:strip_diacritics]
-            base = Slug::strip_diacritics(base)
-          end
-          if self.friendly_id_options[:strip_non_ascii]
-            base = Slug::strip_non_ascii(base)
-          end
+          base = Slug::strip_diacritics(base) if self.friendly_id_options[:strip_diacritics]
+          base = Slug::strip_non_ascii(base) if self.friendly_id_options[:strip_non_ascii]
           base = Slug::normalize(base)
         end
 
@@ -124,9 +120,9 @@ module FriendlyId
 
       def finder_slug=(finder_slug)
         @finder_slug_name = finder_slug.name
-        slug = finder_slug
-        slug.sluggable = self
-        slug
+        finder_slug.tap do |slug|
+          slug.sluggable = self
+        end
       end
 
       def init_finder_slug
