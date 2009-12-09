@@ -49,19 +49,19 @@ module FriendlyId
       # Finds multiple records using the friendly ids, or the records' ids.
       def find_some(ids_and_names, options) #:nodoc:#
         slugs, ids = get_slugs_and_ids(ids_and_names, options)
-        results = []
 
-        find_options = {:select => "#{self.table_name}.*"}
+        find_options = {
+          :select => "#{self.table_name}.*",
+          :conditions =>
+            "#{quoted_table_name}.#{primary_key} IN (#{ids.empty? ? 'NULL' : ids.join(',')}) " \
+            "OR slugs.id IN (#{slugs.to_s(:db)})"
+        }
         find_options[:joins] = :slugs unless Array(options[:include]).include?(:slugs)
-        find_options[:conditions] = "#{quoted_table_name}.#{primary_key} IN (#{ids.empty? ? 'NULL' : ids.join(',')}) "
-        find_options[:conditions] << "OR slugs.id IN (#{slugs.to_s(:db)})"
 
-        results = with_scope(:find => find_options) { find_every(options) }.uniq
-
-        enforce_size!(results, ids_and_names, options)
-        assign_finder_slugs(slugs, results)
-
-        results
+        with_scope(:find => find_options) { find_every(options) }.uniq.tap do |results|
+          enforce_size!(results, ids_and_names, options)
+          assign_finder_slugs(slugs, results)
+        end
       end
 
       def validate_find_options(options) #:nodoc:#
