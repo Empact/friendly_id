@@ -5,7 +5,7 @@ module FriendlyId
       def self.included(base)
         base.class_eval do
           has_many :slugs, :order => 'id DESC', :as => :sluggable, :dependent => :destroy
-          before_save :set_slug
+          before_validation :create_slug
           after_save :set_slug_cache
           # only protect the column if the class is not already using attributes_accessible
           if !accessible_attributes
@@ -121,14 +121,15 @@ module FriendlyId
       end
 
       # Set the slug using the generated friendly id.
-      def set_slug
+      def create_slug
         if self.class.friendly_id_options[:use_slug] && new_slug_needed?
           @most_recent_slug = nil
           slug_attributes = {:name => slug_text}
-          if friendly_id_options[:scope]
-            scope = send(friendly_id_options[:scope])
-            slug_attributes[:scope] = scope.respond_to?(:to_param) ? scope.to_param : scope.to_s
-          end
+          slug_attributes[:scope] =
+            if friendly_id_options[:scope]
+              scope = send(friendly_id_options[:scope])
+              scope.respond_to?(:to_param) ? scope.to_param : scope.to_s
+            end
           # If we're renaming back to a previously used friendly_id, delete the
           # slug so that we can recycle the name without having to use a sequence.
           slugs.find(:all, :conditions => {:name => slug_text, :scope => slug_attributes[:scope]}).each { |s| s.destroy }
