@@ -3,7 +3,7 @@ class Slug < ActiveRecord::Base
 
   belongs_to :sluggable, :polymorphic => true
   before_save :check_for_blank_name
-  before_create :initialize_sequence
+  after_validation_on_create :initialize_sequence
 
   default_scope :order => 'sequence'
 
