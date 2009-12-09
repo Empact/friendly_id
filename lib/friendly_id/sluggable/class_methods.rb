@@ -1,3 +1,5 @@
+require "friendly_id/helpers"
+
 module FriendlyId
   module Sluggable
     module ClassMethods
