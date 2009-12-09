@@ -89,15 +89,15 @@ module FriendlyId
 
       # Get the processed string used as the basis of the friendly id.
       def slug_text
-        base = self.slug_normalizer_block.call(send(friendly_id_options[:method]))
+        self.slug_normalizer_block.call(
+          send(friendly_id_options[:method])
+        ).mb_chars.to(friendly_id_options[:max_length] - 1).tap do |text|
 
-        if base.mb_chars.length > friendly_id_options[:max_length]
-          base = base.mb_chars[0...friendly_id_options[:max_length]]
+          if friendly_id_options[:reserved].include?(text)
+            raise FriendlyId::SlugGenerationError.new("The slug text is a reserved value")
+          end
+
         end
-        if friendly_id_options[:reserved].include?(base)
-          raise FriendlyId::SlugGenerationError.new("The slug text is a reserved value")
-        end
-        return base
       end
 
     private
