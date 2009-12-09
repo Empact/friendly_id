@@ -21,13 +21,16 @@ module FriendlyId
 
         names, ids = split_names_and_ids(ids_and_names)
         results = with_scope :find => options do
-          find :all, :conditions => ["#{quoted_table_name}.#{primary_key} IN (?) OR #{friendly_id_options[:method]} IN (?)",
+          find :all, :conditions => [
+            "#{quoted_table_name}.#{primary_key} IN (?) OR #{friendly_id_options[:method]} IN (?)",
             ids, names]
         end
 
         enforce_size!(results, ids_and_names, options)
 
-        results.each {|r| r.instance_variable_set(:@found_using_friendly_id, true) if names.include?(r.friendly_id)}
+        results.each do |r|
+          r.instance_variable_set(:@found_using_friendly_id, true) if names.include?(r.friendly_id)
+        end
 
         results
 
