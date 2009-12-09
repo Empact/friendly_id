@@ -12,7 +12,7 @@ module FriendlyId
   DEFAULT_OPTIONS = {
     :max_length       => 255,
     :reserved         => ["new", "index"],
-    :reserved_message => 'can not be "%s"'
+    :validation_message => 'can not be "%s"'
   }.freeze
 
   # The names of all valid configuration options.
@@ -36,7 +36,7 @@ module FriendlyId
   # * <tt>:strip_diacritics</tt> - Defaults to nil. If true, it will remove accents, umlauts, etc. from western characters.
   # * <tt>:strip_non_ascii</tt> - Defaults to nil. If true, it will remove all non-ASCII characters.
   # * <tt>:reserved</tt> - Array of words that are reserved and can't be used as friendly_id's. For sluggable models, if such a word is used, the object and slug will fail validation. Defaults to ["new", "index"].
-  # * <tt>:reserved_message</tt> - The validation message that will be shown when a reserved word is used as a frindly_id. Defaults to '"%s" is reserved'.
+  # * <tt>:validation_message</tt> - The message that will be shown when a blank or reserved word is used as a frindly_id. Defaults to '"%s" is reserved'.
   #
   # You can also optionally pass a block if you want to use your own custom
   # slug normalization routines rather than the default ones that come with

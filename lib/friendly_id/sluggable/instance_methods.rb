@@ -100,7 +100,7 @@ module FriendlyId
 
       def validate_latest_slug
         unless slugs.first.valid?
-          errors.add(friendly_id_options[:method], friendly_id_options[:reserved_message] % send(friendly_id_options[:method]))
+          errors.add(friendly_id_options[:method], friendly_id_options[:validation_message] % send(friendly_id_options[:method]))
         end
       end
 

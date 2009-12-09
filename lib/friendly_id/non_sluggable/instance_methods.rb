@@ -32,7 +32,7 @@ module FriendlyId
       def validate_friendly_id
         if self.class.friendly_id_options[:reserved].include? friendly_id
           self.errors.add(self.class.friendly_id_options[:method],
-            self.class.friendly_id_options[:reserved_message] % friendly_id)
+            self.class.friendly_id_options[:validation_message] % friendly_id)
           return false
         end
       end
