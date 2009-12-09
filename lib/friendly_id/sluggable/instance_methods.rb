@@ -122,7 +122,7 @@ module FriendlyId
 
       # Set the slug using the generated friendly id.
       def create_slug
-        if self.class.friendly_id_options[:use_slug] && new_slug_needed?
+        if new_slug_needed?
           @most_recent_slug = nil
           slug_attributes = {:name => slug_text}
           slug_attributes[:scope] =
