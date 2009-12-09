@@ -89,14 +89,7 @@ module FriendlyId
 
       # Get the processed string used as the basis of the friendly id.
       def slug_text
-        base = send friendly_id_options[:method]
-        if self.slug_normalizer_block
-          base = self.slug_normalizer_block.call(base)
-        else
-          base = Slug::strip_diacritics(base) if self.friendly_id_options[:strip_diacritics]
-          base = Slug::strip_non_ascii(base) if self.friendly_id_options[:strip_non_ascii]
-          base = Slug::normalize(base)
-        end
+        base = self.slug_normalizer_block.call(send(friendly_id_options[:method]))
 
         if base.mb_chars.length > friendly_id_options[:max_length]
           base = base.mb_chars[0...friendly_id_options[:max_length]]

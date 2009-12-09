@@ -57,9 +57,13 @@ module FriendlyId
     options = DEFAULT_OPTIONS.merge(options).merge(:method => method)
     write_inheritable_attribute :friendly_id_options, options
     class_inheritable_accessor :friendly_id_options
-    class_inheritable_reader :slug_normalizer_block
-    write_inheritable_attribute(:slug_normalizer_block, block) if block_given?
     if friendly_id_options[:use_slug]
+      class_inheritable_reader :slug_normalizer_block
+      write_inheritable_attribute(:slug_normalizer_block, (block_given? && block) || lambda do |slug|
+        slug = Slug::strip_diacritics(slug) if self.friendly_id_options[:strip_diacritics]
+        slug = Slug::strip_non_ascii(slug) if self.friendly_id_options[:strip_non_ascii]
+        Slug::normalize(slug)
+      end)
       extend Sluggable::ClassMethods
       include Sluggable::InstanceMethods
     else
