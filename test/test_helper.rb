@@ -100,5 +100,4 @@ end
 
 # A model with no table
 class Question < ActiveRecord::Base
-  has_friendly_id :name, :use_slug => true
 end

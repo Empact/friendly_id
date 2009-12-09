@@ -14,20 +14,17 @@ module FriendlyId
             end
             attr_protected :cached_slug
           end
-        end
 
-        def base.cache_column
-          if defined?(@cache_column)
-            return @cache_column
-          elsif friendly_id_options[:cache_column]
-            @cache_column = friendly_id_options[:cache_column].to_sym
-          elsif columns.any? { |c| c.name == 'cached_slug' }
-            @cache_column = :cached_slug
-          else
-            @cache_column = nil
+          class << self
+            extend ActiveSupport::Memoizable
+
+            def cache_column
+              friendly_id_options[:cache_column].try(:to_sym) ||
+                (:cached_slug if columns.any? { |c| c.name == 'cached_slug' })
+            end
+            memoize :cache_column
           end
         end
-
       end
 
       attr_accessor :finder_slug_name
