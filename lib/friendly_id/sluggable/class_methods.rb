@@ -48,7 +48,6 @@ module FriendlyId
 
       # Finds multiple records using the friendly ids, or the records' ids.
       def find_some(ids_and_names, options) #:nodoc:#
-
         slugs, ids = get_slugs_and_ids(ids_and_names, options)
         results = []
 
@@ -59,12 +58,7 @@ module FriendlyId
 
         results = with_scope(:find => find_options) { find_every(options) }.uniq
 
-        expected = expected_size(ids_and_names, options)
-        if results.size != expected
-          raise ActiveRecord::RecordNotFound,
-            "Couldn't find all #{ name.pluralize } with IDs (#{ ids_and_names * ', ' }) AND #{ sanitize_sql options[:conditions] } (found #{ results.size } results, but was looking for #{ expected })"
-        end
-
+        enforce_size!(results, ids_and_names, options)
         assign_finder_slugs(slugs, results)
 
         results

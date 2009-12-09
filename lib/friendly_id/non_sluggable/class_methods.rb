@@ -25,11 +25,7 @@ module FriendlyId
             ids, names]
         end
 
-        expected = expected_size(ids_and_names, options)
-        if results.size != expected
-          raise ActiveRecord::RecordNotFound,
-            "Couldn't find all #{ name.pluralize } with IDs (#{ ids_and_names * ', ' }) AND #{ sanitize_sql options[:conditions] } (found #{ results.size } results, but was looking for #{ expected })"
-        end
+        enforce_size!(results, ids_and_names, options)
 
         results.each {|r| r.instance_variable_set(:@found_using_friendly_id, true) if names.include?(r.friendly_id)}
 
