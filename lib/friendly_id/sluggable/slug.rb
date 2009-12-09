@@ -2,8 +2,10 @@
 class Slug < ActiveRecord::Base
 
   belongs_to :sluggable, :polymorphic => true
-  validates_presence_of :name
+
+  validates_presence_of :name, :sluggable
   validate :validate_name_is_not_reserved
+
   after_validation_on_create :initialize_sequence
 
   default_scope :order => 'sequence'
