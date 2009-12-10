@@ -4,7 +4,7 @@ module FriendlyId
 
       def self.included(base)
         base.class_eval do
-          has_many :slugs, :order => 'id DESC', :as => :sluggable, :dependent => :destroy
+          has_many :slugs, :order => 'id DESC', :as => :sluggable, :dependent => :destroy, :validate => false
           validate :validate_latest_slug
 
           before_validation :create_slug
