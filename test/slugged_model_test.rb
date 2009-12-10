@@ -60,19 +60,27 @@ class SluggedModelTest < Test::Unit::TestCase
     end
 
     should "raise an error if the friendly_id text is reserved" do
-      assert !Post.new(:name => 'new').valid?
+      person = Post.new(:name => "new")
+      assert !person.save
+      assert_equal ['Name can not be "new"'], person.errors.full_messages
     end
 
     should "raise an error if the friendly_id text is an empty string" do
-      assert !Post.new(:name => '').valid?
+      person = Post.new(:name => "")
+      assert !person.save
+      assert_equal ['Name can not be ""'], person.errors.full_messages
     end
 
     should "fails validation if the friendly_id text is nil" do
-      assert !Post.new(:name => nil).valid?
+      person = Post.new(:name => nil)
+      assert !person.save
+      assert_equal ['Name can not be ""'], person.errors.full_messages
     end
 
     should "raise an error if the normalized friendly id becomes blank" do
-      assert !Post.new(:name => "-.-").valid?
+      person = Post.new(:name => "-.-")
+      assert !person.save
+      assert_equal ['Name can not be "-.-"'], person.errors.full_messages
     end
 
     should "not make a new slug unless the friendly_id method value has changed" do
@@ -163,11 +171,15 @@ class SluggedModelTest < Test::Unit::TestCase
       end
 
       should "raise an error if the friendly_id text is an empty string" do
-        assert !Post.new(:name => '').valid?
+        person = Post.new(:name => "")
+        assert !person.save
+        assert_equal ['Name can not be ""'], person.errors.full_messages
       end
 
       should "fails validation if the friendly_id text is nil" do
-        assert !Post.new(:name => nil).valid?
+        person = Post.new(:name => nil)
+        assert !person.save
+        assert_equal ['Name can not be ""'], person.errors.full_messages
       end
 
     end

@@ -26,7 +26,9 @@ class CustomSlugNormalizerTest < Test::Unit::TestCase
 
     should "respect the reserved option" do
       Person.friendly_id_options.merge!(:reserved => ["JOE"])
-      assert !Person.new(:name => "Joe").valid?
+      person = Person.new(:name => "Joe")
+      assert !person.save
+      assert_equal ['Name can not be "Joe"'], person.errors.full_messages
     end
 
   end
