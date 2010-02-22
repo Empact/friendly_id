@@ -65,6 +65,12 @@ class CreateSupportModels < ActiveRecord::Migration
       t.index :name, :unique => true
     end
 
+    create_table :model_with_friendly_id_friendly_ids do |t|
+      t.string :friendly_id
+      t.string :name
+      t.integer :age
+    end
+
   end
 
   def self.down

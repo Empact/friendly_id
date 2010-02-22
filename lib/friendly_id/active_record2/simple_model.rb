@@ -124,7 +124,7 @@ module FriendlyId
 
       # Returns the friendly_id.
       def friendly_id
-        send friendly_id_config.column
+        self[friendly_id_config.column.to_sym]
       end
       alias best_id friendly_id
 

@@ -105,3 +105,13 @@ end
 class Question < ActiveRecord::Base
   has_friendly_id :name, :use_slug => true
 end
+
+class ModelWithFriendlyIdFriendlyId < ActiveRecord::Base
+  has_friendly_id :friendly_id
+
+  before_validation :set_friendly_id
+
+  def set_friendly_id
+    self.friendly_id = "#{name}-#{age}"
+  end
+end
